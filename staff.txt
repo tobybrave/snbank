@@ -1,4 +1,2 @@
-{
-"staff1": {"username": "tobybrave", "password": "evarbtoby", "email": "toby@gmail.com", "full_name": "toby brave"},
-"staff2": {"username": "brave", "password": "brave", "email": "toby@gmail.com", "full_name": "toby brave"}
-}
+toby ybot toby@gmail.com Toby 
+samuel leumas samuel@yahoo.com Samuel Page
