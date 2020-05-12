@@ -1,83 +1,122 @@
-import random
+import random, time, os
+
+def staff_sign_in():
+	sign_in = True
+			
+	while sign_in:
+		entered_staff_username = input("Enter Username: ").lower()
+		entered_staff_password = input("Enter password: ")
+		
+		with open("staff.txt", "r") as staff_file:
+			staffs = staff_file.readlines()
+			staff_list = []
+			for staff in staffs:
+				staff_list.append(staff.split())
+			
+			staff_index = 0
+			total_staff = len(staff_list)
+			access_granted = True
+			
+			while staff_index < total_staff:
+				staff_username = staff_list[staff_index][0]
+				staff_password = staff_list[staff_index][1]
+				if staff_username == entered_staff_username and staff_password == entered_staff_password:
+					access_granted = False
+				staff_index += 1
+				
+			if access_granted == False:
+				sign_in = False
+				
+			else:
+				print("Incorrect username or password!! Try again")
+	return entered_staff_username
+
 
 def new_account():
-  details = {}
-  acc_name = input("\nAccount name: ")
-  bal = True
-  while bal:
+  account_name = input("\nAccount name: ")
+  is_opening_balance_number = True
+  
+  while is_opening_balance_number:
     try:
-      opening_bal = eval(input("Opening Balance (in $): "))
-      bal = False
+      opening_balance = eval(input("Opening Balance (in Naira): "))
+      is_opening_balance_number = False
     except:
       print(" Only digits can be inputted!!")
-  acc_type = input("Account type: ")
-  acc_number = int("".join(str(random.randint(0,9)) for i in range(10)))
+      
+  account_type = input("Account type: ")
+  account_number = "".join(str(random.randint(0,9)) for i in range(10))
   
-  details["Account Name"] = acc_name
-  details["Opening Balance"] = opening_bal
-  details["Account Type"] = acc_type
-  details["Account Number"] = acc_number
-  print(details)
-  return details
+  with open("customer.txt", "a") as customers:
+  	customers.write(f'{account_number} Account_Name:"{account_name}" Opening_Balance:{opening_balance} Account_Type:{account_type}\n')
+  	
+  return (f"Account Number: {account_number}")
+
+
+def check_account():
+	with open("customer.txt", "r") as customers_file:
+		customers = customers_file.readlines()
+		customers_list = []
+		for customer in customers:
+			customers_list.append(customer.split())
+			
+		is_account_number_correct = True
+		while is_account_number_correct:
+			entered_account_number = input("\nAccount Number: ")
+			customer_index = 0
+			total_customers = len(customers_list)
+			
+			while customer_index < total_customers:
+				account_number = customers_list[customer_index][0]
+				if entered_account_number == account_number:
+					customer_details = customers_list[customer_index]
+					is_account_number_correct = False
+				customer_index += 1	
+				
+	return customer_details
+	
 
 menu = True
-print("*** SN Banking System***")
+print("*** SN Banking ***")
 while menu:
-  print("""\nStaff Login
+	print("""\nStaff Login
 Close App""")
-
-  entry = input(" Enter S to select Staff Login and C to Close App: ").upper()
-
-  if entry == "C":
-    break
-    
-  login = True
-  if entry == "S":
-    while login:
-      entered_username = input("Enter Username: ").lower()
-      entered_password = input("Enter password: ")
-      with open("staff.txt", "r") as staff:
-      	registered_staff = eval(staff.read())
-      staff1_username = registered_staff["staff1"]["username"] 
-      staff1_password = registered_staff["staff1"]["password"]
-      staff2_username = registered_staff["staff2"]["username"]
-      staff2_password =  registered_staff["staff2"]["password"]
-      if (entered_username == staff1_username and entered_password ==  staff1_password) or (entered_username == staff2_username and entered_password ==  staff2_password):
-        #put a loop here
-        sub_menu = True
-        
-        print(f"\nWelcome {entered_username}")
-        while sub_menu:
-          print("""
+	entry = input("Enter S to select Staff Log in and C to Close App: ").upper()
+	
+	if entry == "C":
+		menu = False
+		
+	elif entry == "S":
+		sign_in = staff_sign_in()
+		print(f"\nWelcome {sign_in}")
+		with open("session_file.txt", "w") as session:
+			session_time = time.ctime()
+			session.write(sign_in + " logged in " +session_time)
+		sub_menu = True
+		
+		while sub_menu:
+			is_selected_digit = True
+			
+			while is_selected_digit:
+				print("""
 1. Create New Account
 2. Check Account Details
 3. Logout""")
-
-          digit = True
-          while digit:
-          	try:
-          		selected = int(input(" Enter the corresponding number to select: "))
-          		digit = False
-          	except ValueError:
-          		print("Only digits allowed!!")
-          		
-          if selected == 1:
-            userDetails = new_account()
-            with open("customer.txt", "w") as customer_file:
-            	customer_file.write(str(userDetails))
-          
-          elif selected == 2:
-            print("\nAccount Details")
-            with open("customer.txt", "r") as customer_file:
-            	customer_details = customer_file.read()
-            	print(customer_details)
-          
-          elif selected == 3:   
-            sub_menu = False
-            login = False
-            
-      else:
-        print(" Wrong Username or password! Try again")
-    
-  else:
-    print("\nInvalid entry!!")
+				try:
+					selected = int(input("Enter the corresponding number to select: "))
+					is_selected_digit = False
+				except ValueError:
+					print("\nOnly digits allowed!!")
+					
+			if selected == 1:
+				print(new_account())
+			elif selected == 2:
+				print(check_account())
+			elif selected == 3:
+				os.remove("session_file.txt")
+				sub_menu = False
+				
+			else:
+				print("\nEnter the corresponding number!!!")
+						
+	else:
+		print("\nInvalid entry!! Try again")
